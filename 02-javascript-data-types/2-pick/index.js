@@ -5,5 +5,7 @@
  * @returns {object} - returns the new object
  */
 export const pick = (obj, ...fields) => {
+  const entriesArray = fields.flatMap(string => Object.entries(obj).filter(([key]) => key === string));
 
+  return Object.fromEntries(entriesArray);
 };
