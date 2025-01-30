@@ -8,11 +8,9 @@ export function sortStrings(arr, param = 'asc') {
   const arrCopy = [...arr];
   const sortingOrder = {asc: 'asc', desc: 'desc'};
 
-  switch (param) {
-  case sortingOrder.asc: arrCopy.sort((a, b) => a.localeCompare(b, "ru", { caseFirst: 'upper' }));
-    return arrCopy;
-  case sortingOrder.desc: arrCopy.sort((a, b) => b.localeCompare(a, "ru", { caseFirst: 'upper' }));
-    return arrCopy;
-  default: return ['параметр сортировки задан неверно'];
-  }
+  param === sortingOrder.asc
+    ? arrCopy.sort((a, b) => a.localeCompare(b, "ru", { caseFirst: 'upper' }))
+    : arrCopy.sort((a, b) => b.localeCompare(a, "ru", { caseFirst: 'upper' }));
+
+  return arrCopy;
 }
