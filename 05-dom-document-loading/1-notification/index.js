@@ -12,11 +12,11 @@ export default class NotificationMessage {
     this.message = message;
     this.duration = duration;
     this.type = type;
-
+    this.timerId = null;
     this.element = this.createElement(this.createTemplate());
   }
 
-  show(targetElement) {
+  show(targetElement = document.body) {
 
     if (NotificationMessage.lastShownComponent) {
       NotificationMessage.lastShownComponent.remove();
@@ -24,12 +24,8 @@ export default class NotificationMessage {
 
     NotificationMessage.lastShownComponent = this;
 
-    setTimeout(() => this.remove(), this.duration);
-    if (!targetElement) {
-      document.body.append(this.element);
-    } else {
-      targetElement.append(this.element);
-    }
+    this.timerId = setTimeout(() => this.remove(), this.duration);
+    targetElement.append(this.element);
   }
 
   createElement(template) {
@@ -59,6 +55,7 @@ export default class NotificationMessage {
   }
 
   destroy() {
+    clearTimeout(this.timerId);
     this.remove();
   }
 }

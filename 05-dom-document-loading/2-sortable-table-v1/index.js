@@ -80,7 +80,7 @@ export default class SortableTable {
 
   createBodyCellTemplate(dataItem) {
     return this.headerConfig.map(({id, template}) => {
-      if (id === 'images') {
+      if (template) {
         return (`
         ${template(dataItem[id])}
 `);
@@ -92,8 +92,6 @@ export default class SortableTable {
   }
 
   sort(field, direction) {
-    const newData = [...this.data];
-
     const setDataOrder = () => {
       const previousElements = this.element.querySelectorAll(`.sortable-table__cell[data-order][data-sortable="true"]`);
       previousElements.forEach(item => item.dataset.order = '');
@@ -102,32 +100,31 @@ export default class SortableTable {
       currentElement.dataset.order = direction;
     };
 
-    if (typeof newData[0][field] === 'string') {
+    if (typeof this.data[0][field] === 'string') {
 
       if (direction === 'asc') {
-        newData.sort((a, b) => a[field].localeCompare(b[field], ["ru", "eng"], { caseFirst: 'upper' }));
+        this.data.sort((a, b) => a[field].localeCompare(b[field], ["ru", "eng"], { caseFirst: 'upper' }));
         setDataOrder();
       } else {
-        newData.sort((a, b) => b[field].localeCompare(a[field], ["ru", "eng"], { caseFirst: 'upper' }));
+        this.data.sort((a, b) => b[field].localeCompare(a[field], ["ru", "eng"], { caseFirst: 'upper' }));
         setDataOrder();
       }
     }
-    else if (typeof newData[0][field] === 'number') {
+    else if (typeof this.data[0][field] === 'number') {
 
       if (direction === 'asc') {
-        newData.sort((a, b) => a[field] - b[field]);
+        this.data.sort((a, b) => a[field] - b[field]);
         setDataOrder();
       } else {
-        newData.sort((a, b) => b[field] - a[field]);
+        this.data.sort((a, b) => b[field] - a[field]);
         setDataOrder();
       }
     }
 
-    this.update(newData);
+    this.update();
   }
 
-  update(newData) {
-    this.data = newData;
+  update() {
     this.element.querySelector('[data-element="body"]').innerHTML = this.createBodyTemplate(this.data);
   }
 
