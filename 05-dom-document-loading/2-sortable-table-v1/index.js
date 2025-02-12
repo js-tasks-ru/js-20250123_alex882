@@ -56,12 +56,25 @@ export default class SortableTable {
     return (`
        <div class="sortable-table__cell" data-id="${id}" data-sortable="${sortable}">
         <span>${title}</span>
-        <span data-element="arrow" class="sortable-table__sort-arrow">
-            <span class="sort-arrow">
-        </span>
-      </span>
       </div>
     `);
+  }
+
+  createHeaderCellArrowElement(targetElement = document.body) {
+    const headerCellArrowTemplate = (`
+    <span data-element="arrow" class="sortable-table__sort-arrow">
+      <span class="sort-arrow"></span>
+    </span>`);
+
+    const element = document.createElement('div');
+    element.innerHTML = headerCellArrowTemplate;
+
+    const headerCellArrowElement = document.body.querySelector('.sortable-table__sort-arrow');
+    if (headerCellArrowElement) {
+      targetElement.append(headerCellArrowElement);
+    } else {
+      targetElement.append(element.firstElementChild);
+    }
   }
 
   createBodyTemplate(data) {
@@ -97,6 +110,13 @@ export default class SortableTable {
       previousElements.forEach(item => item.dataset.order = '');
 
       const currentElement = this.element.querySelector(`.sortable-table__cell[data-id=${field}][data-sortable="true"]`);
+      if (!currentElement) {
+        return;
+      }
+      const hasHeaderCellArrow = !!currentElement.querySelector('.sortable-table__sort-arrow');
+      if (!hasHeaderCellArrow) {
+        this.createHeaderCellArrowElement(currentElement);
+      }
       currentElement.dataset.order = direction;
     };
 
