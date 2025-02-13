@@ -8,6 +8,7 @@ export default class SortableTable {
 
     this.element = this.createElement(this.createTableTemplate());
     this.selectSubElements();
+    this.createArrowElement();
   }
 
   selectSubElements() {
@@ -60,7 +61,7 @@ export default class SortableTable {
     `);
   }
 
-  createHeaderCellArrowElement(targetElement = document.body) {
+  createArrowElement() {
     const headerCellArrowTemplate = (`
     <span data-element="arrow" class="sortable-table__sort-arrow">
       <span class="sort-arrow"></span>
@@ -68,13 +69,7 @@ export default class SortableTable {
 
     const element = document.createElement('div');
     element.innerHTML = headerCellArrowTemplate;
-
-    const headerCellArrowElement = document.body.querySelector('.sortable-table__sort-arrow');
-    if (headerCellArrowElement) {
-      targetElement.append(headerCellArrowElement);
-    } else {
-      targetElement.append(element.firstElementChild);
-    }
+    this.arrowElement = element.firstElementChild;
   }
 
   createBodyTemplate(data) {
@@ -105,6 +100,12 @@ export default class SortableTable {
   }
 
   sort(field, direction) {
+    const columnConfig = this.headerConfig.find(config => config.id === field);
+
+    if (!columnConfig.sortable) {
+      return;
+    }
+
     const setDataOrder = () => {
       const previousElements = this.element.querySelectorAll(`.sortable-table__cell[data-order][data-sortable="true"]`);
       previousElements.forEach(item => item.dataset.order = '');
@@ -113,32 +114,19 @@ export default class SortableTable {
       if (!currentElement) {
         return;
       }
-      const hasHeaderCellArrow = !!currentElement.querySelector('.sortable-table__sort-arrow');
-      if (!hasHeaderCellArrow) {
-        this.createHeaderCellArrowElement(currentElement);
-      }
+
+      currentElement.append(this.arrowElement);
       currentElement.dataset.order = direction;
     };
 
-    if (typeof this.data[0][field] === 'string') {
+    const k = direction === 'asc' ? 1 : -1;
 
-      if (direction === 'asc') {
-        this.data.sort((a, b) => a[field].localeCompare(b[field], ["ru", "eng"], { caseFirst: 'upper' }));
-        setDataOrder();
-      } else {
-        this.data.sort((a, b) => b[field].localeCompare(a[field], ["ru", "eng"], { caseFirst: 'upper' }));
-        setDataOrder();
-      }
-    }
-    else if (typeof this.data[0][field] === 'number') {
-
-      if (direction === 'asc') {
-        this.data.sort((a, b) => a[field] - b[field]);
-        setDataOrder();
-      } else {
-        this.data.sort((a, b) => b[field] - a[field]);
-        setDataOrder();
-      }
+    if (columnConfig.sortType === 'string') {
+      this.data.sort((a, b) => k * a[field].localeCompare(b[field], ["ru", "eng"], { caseFirst: 'upper' }));
+      setDataOrder();
+    } else if (columnConfig.sortType === 'number') {
+      this.data.sort((a, b) => k * a[field] - k * b[field]);
+      setDataOrder();
     }
 
     this.update();

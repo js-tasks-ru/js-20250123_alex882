@@ -4,50 +4,49 @@ export default class SortableTable extends SortableTableV1 {
 
   constructor(headersConfig, {
     data = [],
-    sorted: { id, order } = {}
+    sorted: { id: sortField, order: sortOrder } = {}
   } = {}) {
     super(headersConfig, data);
     this.isSortLocally = true;
-    this.id = id;
-    this.order = order;
-    this.sort();
+    this.sort(sortField, sortOrder);
     this.createListeners();
   }
 
   createListeners() {
-    document.body.addEventListener('pointerdown', (e) => this.handleTableHeaderPointerdown(e));
+    document.body.addEventListener('pointerdown', this.handleTableHeaderPointerdown);
   }
 
   destroyListeners() {
-    document.body.removeEventListener('pointerdown', (e) => this.handleTableHeaderPointerdown(e));
+    document.body.removeEventListener('pointerdown', this.handleTableHeaderPointerdown);
   }
 
-  handleTableHeaderPointerdown(e) {
+  handleTableHeaderPointerdown = (e) => {
     const { target } = e;
 
-    const elem = target.closest('[data-sortable="true"]');
-    if (!elem) {
+    const cellElement = target.closest('[data-sortable="true"]');
+
+    if (!cellElement) {
       return;
     }
 
-    this.id = elem.dataset.id;
-    this.order = !elem.dataset.order || elem.dataset.order === 'asc' ? 'desc' : 'asc';
-    this.sort();
+    const sortField = cellElement.dataset.id;
+    const sortOrder = !cellElement.dataset.order || cellElement.dataset.order === 'asc' ? 'desc' : 'asc';
+    this.sort(sortField, sortOrder);
   }
 
-  sort() {
+  sort(sortField, sortOrder) {
     if (this.isSortLocally) {
-      this.sortOnClient();
+      this.sortOnClient(sortField, sortOrder);
     } else {
-      this.sortOnServer();
+      this.sortOnServer(sortField, sortOrder);
     }
   }
 
-  sortOnClient() {
-    super.sort(this.id, this.order);
+  sortOnClient(sortField, sortOrder) {
+    super.sort(sortField, sortOrder);
   }
 
-  sortOnServer() {}
+  sortOnServer(sortField, sortOrder) {}
 
   remove() {
     this.element.remove();
