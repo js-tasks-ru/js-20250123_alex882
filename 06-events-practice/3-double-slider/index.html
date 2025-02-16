@@ -10,7 +10,16 @@
   <script type="module">
     import DoubleSlider from './index.js';
 
-    const slider = new DoubleSlider();
+    const config = {
+      min: 0,
+      max: 100,
+      selected: {
+        from: 20,
+        to: 40
+      }
+    }
+
+    const slider = new DoubleSlider(config);
 
     root.append(slider.element);
   </script>
