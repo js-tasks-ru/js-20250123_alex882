@@ -44,7 +44,7 @@ export default class ColumnChart extends ColumnChartV1 {
       return await response.json();
     } catch (err) {
       console.log(err);
-      return null;
+      return {};
     }
   }
 
