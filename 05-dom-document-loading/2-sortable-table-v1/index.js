@@ -106,33 +106,34 @@ export default class SortableTable {
       return;
     }
 
-    const setDataOrder = () => {
-      const previousElements = this.element.querySelectorAll(`.sortable-table__cell[data-order][data-sortable="true"]`);
-      previousElements.forEach(item => item.dataset.order = '');
-
-      const currentElement = this.element.querySelector(`.sortable-table__cell[data-id=${field}][data-sortable="true"]`);
-      if (!currentElement) {
-        return;
-      }
-
-      currentElement.append(this.arrowElement);
-      currentElement.dataset.order = direction;
-    };
-
     const k = direction === 'asc' ? 1 : -1;
 
     if (columnConfig.sortType === 'string') {
       this.data.sort((a, b) => k * a[field].localeCompare(b[field], ["ru", "eng"], { caseFirst: 'upper' }));
-      setDataOrder();
+      this.setDataOrder(field, direction);
     } else if (columnConfig.sortType === 'number') {
       this.data.sort((a, b) => k * a[field] - k * b[field]);
-      setDataOrder();
+      this.setDataOrder(field, direction);
     }
 
-    this.update();
+    this.update(this.data);
   }
 
-  update() {
+  setDataOrder(field, direction) {
+    const previousElements = this.element.querySelectorAll(`.sortable-table__cell[data-order][data-sortable="true"]`);
+    previousElements.forEach(item => item.dataset.order = '');
+
+    const currentElement = this.element.querySelector(`.sortable-table__cell[data-id=${field}][data-sortable="true"]`);
+    if (!currentElement) {
+      return;
+    }
+
+    currentElement.append(this.arrowElement);
+    currentElement.dataset.order = direction;
+  }
+
+  update(newData) {
+    this.data = newData;
     this.element.querySelector('[data-element="body"]').innerHTML = this.createBodyTemplate(this.data);
   }
 
