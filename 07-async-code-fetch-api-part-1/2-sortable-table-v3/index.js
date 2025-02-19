@@ -17,9 +17,31 @@ export default class SortableTable extends SortableTableV2 {
     this.data = data;
     this.sortField = id;
     this.sortOrder = order;
+    this.defaultInitialValue = 0;
+    this.defaultEndValue = 340;
+    this.initialValue = this.defaultInitialValue;
+    this.endValue = this.defaultEndValue;
+    this.scrollStep = 10;
     this.url = url;
     this.isSortLocally = isSortLocally;
     this.render();
+    this.createListeners();
+  }
+
+  createListeners() {
+    window.addEventListener('scroll', this.handleWindowScroll);
+    super.createListeners();
+  }
+
+  destroyListeners() {
+    window.removeEventListener('scroll', this.handleWindowScroll);
+    super.destroyListeners();
+  }
+
+  handleWindowScroll = () => {
+    if (Math.ceil(window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight) {
+      this.render();
+    }
   }
 
   async render() {
@@ -29,10 +51,16 @@ export default class SortableTable extends SortableTableV2 {
     emptyPlaceholder.style.display = 'none';
     loadingIndicator.style.display = 'block';
 
-    this.data = await this.loadData();
-    if (Array.isArray(this.data) && !!this.data.length) {
+    const newData = await this.loadData();
+    if (Array.isArray(newData) && !!newData.length) {
       loadingIndicator.style.display = 'none';
-      super.update(this.data);
+
+      if (this.data.length !== newData.length) {
+        this.data = newData;
+        super.update(this.data);
+        this.endValue += this.scrollStep;
+
+      }
     } else {
       loadingIndicator.style.display = 'none';
       emptyPlaceholder.style.display = 'block';
@@ -45,8 +73,8 @@ export default class SortableTable extends SortableTableV2 {
       _embed: 'subcategory.category',
       _sort: this.sortField,
       _order: this.sortOrder,
-      _start: '0',
-      _end: '30',
+      _start: this.initialValue,
+      _end: this.endValue,
     });
 
     return this.fetchData(url);
@@ -77,7 +105,10 @@ export default class SortableTable extends SortableTableV2 {
   async sortOnServer (sortField, sortOrder) {
     this.sortField = sortField;
     this.sortOrder = sortOrder;
+    this.initialValue = this.defaultInitialValue;
+    this.endValue = this.defaultEndValue;
     this.data = await this.loadData();
+    this.endValue += this.scrollStep;
     super.setDataOrder(sortField, sortOrder);
     super.update(this.data);
   }
