@@ -19,27 +19,37 @@ export default class SortableTable extends SortableTableV2 {
     this.sortOrder = order;
     this.url = url;
     this.isSortLocally = isSortLocally;
-
-    // this.data = this.loadData();
     this.render();
   }
 
   async render() {
-    this.data = await this.loadData();
-    // this.sort(this.sortField, this.sortOrder);
+    const loadingIndicator = this.element.querySelector('[data-element="loading"]');
+    const emptyPlaceholder = this.element.querySelector('[data-element="emptyPlaceholder"]');
 
-    super.update(this.data);
+    emptyPlaceholder.style.display = 'none';
+    loadingIndicator.style.display = 'block';
+
+    this.data = await this.loadData();
+    if (Array.isArray(this.data) && !!this.data.length) {
+      loadingIndicator.style.display = 'none';
+      super.update(this.data);
+    } else {
+      loadingIndicator.style.display = 'none';
+      emptyPlaceholder.style.display = 'block';
+    }
   }
 
   async loadData() {
-    return fetchJson(this.createUrl(this.url, {
+    const url = this.createUrl(this.url, {
       baseUrl: BACKEND_URL,
       _embed: 'subcategory.category',
       _sort: this.sortField,
       _order: this.sortOrder,
       _start: '0',
       _end: '30',
-    }));
+    });
+
+    return this.fetchData(url);
   }
 
   createUrl(url, { baseUrl, ...params }) {
@@ -54,17 +64,20 @@ export default class SortableTable extends SortableTableV2 {
     return resultUrl;
   }
 
-  // sortOnClient (id, order) {
-  //   // super.sortOnClient(id, order);
-  // }
+  async fetchData(url) {
+    try {
+      const response = await fetch(url.toString());
+      return await response.json();
+    } catch (err) {
+      console.log(err.message);
+      return [];
+    }
+  }
 
   async sortOnServer (sortField, sortOrder) {
-    // console.log('sortOnServer вызван!');
     this.sortField = sortField;
     this.sortOrder = sortOrder;
-
     this.data = await this.loadData();
-
     super.setDataOrder(sortField, sortOrder);
     super.update(this.data);
   }
