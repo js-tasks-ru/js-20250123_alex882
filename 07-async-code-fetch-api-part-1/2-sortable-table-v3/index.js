@@ -18,7 +18,7 @@ export default class SortableTable extends SortableTableV2 {
     this.sortField = id;
     this.sortOrder = order;
     this.defaultInitialValue = 0;
-    this.defaultEndValue = 340;
+    this.defaultEndValue = 30;
     this.initialValue = this.defaultInitialValue;
     this.endValue = this.defaultEndValue;
     this.scrollStep = 10;
@@ -94,10 +94,9 @@ export default class SortableTable extends SortableTableV2 {
 
   async fetchData(url) {
     try {
-      const response = await fetch(url.toString());
-      return await response.json();
+      return await fetchJson(url);
     } catch (err) {
-      console.log(err.message);
+      console.log(err.response.status);
       return [];
     }
   }

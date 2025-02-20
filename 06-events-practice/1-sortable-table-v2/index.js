@@ -13,11 +13,13 @@ export default class SortableTable extends SortableTableV1 {
   }
 
   createListeners() {
-    document.body.addEventListener('pointerdown', this.handleTableHeaderPointerdown);
+    const header = this.subElements.header;
+    header.addEventListener('pointerdown', this.handleTableHeaderPointerdown);
   }
 
   destroyListeners() {
-    document.body.removeEventListener('pointerdown', this.handleTableHeaderPointerdown);
+    const header = this.subElements.header;
+    header.removeEventListener('pointerdown', this.handleTableHeaderPointerdown);
   }
 
   handleTableHeaderPointerdown = (e) => {
