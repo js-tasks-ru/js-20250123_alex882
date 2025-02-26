@@ -185,7 +185,7 @@ export default class ProductForm {
 
        for (const category of categoriesData) {
          for (const child of category.subcategories) {
-           names.push(`<option value=${child.id}>${category.title} &gt; ${child.title}</option>`);
+           names.push(`<option value="${escapeHtml(child.id)}">${escapeHtml(category.title)} &gt; ${escapeHtml(child.title)}</option>`);
          }
        }
 
@@ -197,19 +197,23 @@ export default class ProductForm {
 
    createImagesTemplate(source, url) {
      return (`
-        <div data-element="imageListContainer"><ul class="sortable-list"><li class="products-edit__imagelist-item sortable-list__item" style="">
-          <input type="hidden" name="url" value="${url}">
-          <input type="hidden" name="source" value="${source}">
+    <div data-element="imageListContainer">
+      <ul class="sortable-list">
+        <li class="products-edit__imagelist-item sortable-list__item">
+          <input type="hidden" name="url" value="${escapeHtml(url)}">
+          <input type="hidden" name="source" value="${escapeHtml(source)}">
           <span>
-        <img src="icon-grab.svg" data-grab-handle="" alt="grab">
-        <img class="sortable-table__cell-img" alt="Image" src="${url}">
-        <span>${source}</span>
-      </span>
+            <img src="icon-grab.svg" data-grab-handle="" alt="grab">
+            <img class="sortable-table__cell-img" alt="Image" src="${escapeHtml(url)}">
+            <span>${escapeHtml(source)}</span>
+          </span>
           <button type="button">
             <img src="icon-trash.svg" data-delete-handle="" alt="delete">
-          </button></li></ul>
-        </div>
-    `);
+          </button>
+        </li>
+      </ul>
+    </div>
+  `);
    }
 
    save() {
