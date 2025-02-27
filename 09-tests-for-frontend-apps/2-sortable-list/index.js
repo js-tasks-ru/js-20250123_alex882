@@ -48,7 +48,6 @@ export default class SortableList {
       this.handleListItemDragStart(e);
     } else if (target.closest('[data-delete-handle]')) {
       this.handleListItemDelete(e);
-
     }
   }
 
