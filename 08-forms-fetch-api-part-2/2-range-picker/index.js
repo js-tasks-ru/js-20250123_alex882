@@ -21,17 +21,16 @@ export default class RangePicker {
     return element.firstElementChild;
   }
 
-
-  //TODO При клике за пределами календаря необходимо его закрыть (подумайте какая фаза события лучше для этого подойдет)
-
   createListeners() {
     this.element.querySelector('.rangepicker__input').addEventListener('click', this.handleInputClick);
     this.element.querySelector('.rangepicker__selector').addEventListener('click', this.handleSelectorClick);
+    document.addEventListener('click', this.handleDocumentClick);
   }
 
   destroyListeners() {
     this.element.querySelector('.rangepicker__input').removeEventListener('click', this.handleInputClick);
     this.element.querySelector('.rangepicker__selector').removeEventListener('click', this.handleSelectorClick);
+    document.removeEventListener('click', this.handleDocumentClick);
   }
 
   handleInputClick = () => {
@@ -40,6 +39,7 @@ export default class RangePicker {
 
     if (container.classList.contains('rangepicker_open')) {
       container.classList.remove('rangepicker_open');
+      this.selectedValue = null;
       return;
     }
 
@@ -60,6 +60,15 @@ export default class RangePicker {
     }
   }
 
+  handleDocumentClick = (e) => {
+    const container = this.element;
+
+    if (!container.contains(e.target)) {
+      container.classList.remove('rangepicker_open');
+      this.selectedValue = null;
+    }
+  };
+
   selectDate(cell) {
     const isOneDayBefore = this.checkIsOneDayBefore(this.from.toISOString(), cell.dataset.value);
     if (isOneDayBefore) {
@@ -73,14 +82,19 @@ export default class RangePicker {
       this.from = this.mixString(this.selectedValue.toISOString(), cell.dataset.value);
       this.to = this.maxString(cell.dataset.value, this.selectedValue.toISOString());
       this.selectedValue = null;
+      this.dispatchDateSelectEvent();
 
       cell.classList.add('rangepicker__selected-to');
       this.element.classList.remove('rangepicker_open');
     } else {
       this.selectedValue = new Date(cell.dataset.value);
 
-      prevFrom.classList.remove('rangepicker__selected-from');
-      prevTo.classList.remove('rangepicker__selected-to');
+      if (prevFrom) {
+        prevFrom.classList.remove('rangepicker__selected-from');
+      }
+      if (prevTo) {
+        prevTo.classList.remove('rangepicker__selected-to');
+      }
       this.clearHighlighting();
       cell.classList.add('rangepicker__selected-from');
     }
@@ -219,6 +233,10 @@ export default class RangePicker {
 
   clearHighlighting() {
     const selectedBetweenCells = this.element.querySelectorAll('.rangepicker__selected-between');
+    if (!selectedBetweenCells.length) {
+      return;
+    }
+
     selectedBetweenCells.forEach((cell) => {
       cell.classList.remove('rangepicker__selected-between');
     });
@@ -230,6 +248,11 @@ export default class RangePicker {
 
   mixString(...strings) {
     return new Date(strings.reduce((a, b) => (a > b ? b : a)));
+  }
+
+  dispatchDateSelectEvent() {
+    const event = new CustomEvent('date-select');
+    this.element.dispatchEvent(event);
   }
 
   remove() {
