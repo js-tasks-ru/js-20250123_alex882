@@ -139,7 +139,11 @@ export default class ProductForm {
       </div>
       <div class="form-group form-group__wide" data-element="sortable-list-container">
         <label class="form-label">Фото</label>
-        ${this.productsData.images.map(({source, url}) => this.createImagesTemplate(source, url)).reverse().join('')}
+        <div data-element="imageListContainer">
+            <ul class="sortable-list">
+                ${this.productsData.images.map(({source, url}) => this.createImagesTemplate(source, url)).reverse().join('')}
+            </ul>
+        </div>
         <button type="button" name="uploadImage" class="button-primary-outline"><span>Загрузить</span></button>
       </div>
       <div class="form-group form-group__half_left">
@@ -197,8 +201,6 @@ export default class ProductForm {
 
    createImagesTemplate(source, url) {
      return (`
-    <div data-element="imageListContainer">
-      <ul class="sortable-list">
         <li class="products-edit__imagelist-item sortable-list__item">
           <input type="hidden" name="url" value="${escapeHtml(url)}">
           <input type="hidden" name="source" value="${escapeHtml(source)}">
@@ -211,8 +213,6 @@ export default class ProductForm {
             <img src="icon-trash.svg" data-delete-handle="" alt="delete">
           </button>
         </li>
-      </ul>
-    </div>
   `);
    }
 
