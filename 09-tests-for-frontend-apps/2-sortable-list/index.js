@@ -77,7 +77,8 @@ export default class SortableList {
     this.moveAt(e.pageY);
 
     document.addEventListener('pointermove', this.handleDocumentPointermove);
-    document.addEventListener('pointerover', this.handleDocumentPointerOver);
+    document.addEventListener('pointerover', this.handleDocumentPointerover);
+    document.addEventListener('pointerout', this.handleDocumentPointerout);
     document.addEventListener('pointerup', this.handleDocumentPointerup);
   }
 
@@ -85,13 +86,24 @@ export default class SortableList {
     this.moveAt(e.pageY);
   };
 
-  handleDocumentPointerOver = (e) => {
-    const target = e.target.closest('.sortable-list__item');
+  handleDocumentPointerover = (e) => {
+    const listItem = e.target.closest('.sortable-list__item');
+    const isPointerOverList = listItem && listItem !== this.draggingElement && listItem !== this.placeholder;
 
-    if (target && target !== this.draggingElement && target !== this.placeholder) {
-      target.before(this.placeholder);
+    if (isPointerOverList) {
+      listItem.before(this.placeholder);
     }
   };
+
+  handleDocumentPointerout = (e) => {
+    const listItem = e.target.closest('.sortable-list__item');
+    const isPointerOutList = listItem && listItem !== this.draggingElement && listItem !== this.placeholder;
+    const listItemLast = this.element.lastElementChild;
+
+    if (isPointerOutList && listItem === listItemLast) {
+      listItem.after(this.placeholder);
+    }
+  }
 
   handleDocumentPointerup = () => {
     this.placeholder.replaceWith(this.draggingElement);
@@ -102,7 +114,8 @@ export default class SortableList {
     this.placeholder = null;
 
     document.removeEventListener('pointermove', this.handleDocumentPointermove);
-    document.removeEventListener('pointerover', this.handleDocumentPointerOver);
+    document.removeEventListener('pointerover', this.handleDocumentPointerover);
+    document.removeEventListener('pointerout', this.handleDocumentPointerout);
     document.removeEventListener('pointerup', this.handleDocumentPointerup);
   };
 
