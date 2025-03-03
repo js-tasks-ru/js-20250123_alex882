@@ -39,9 +39,14 @@ export default class ProductForm {
 
   async render() {
     this.categoriesData = await this.loadData(this.categoriesPath, BACKEND_URL, {...this.sort, ...this.refs});
-    const product = await this.loadData(this.productsPath, BACKEND_URL, {id: this.productId});
-    if (Array.isArray(product) && !!product.length) {
-      this.productsData = product[0];
+
+    if (this.productId) {
+      const product = await this.loadData(this.productsPath, BACKEND_URL, {id: this.productId});
+      if (Array.isArray(product) && !!product.length) {
+        this.productsData = product[0];
+      } else {
+        this.productsData = this.defaultFormData;
+      }
     } else {
       this.productsData = this.defaultFormData;
     }
@@ -140,9 +145,7 @@ export default class ProductForm {
       <div class="form-group form-group__wide" data-element="sortable-list-container">
         <label class="form-label">Фото</label>
         <div data-element="imageListContainer">
-            <ul class="sortable-list">
-                ${this.productsData.images.map(({source, url}) => this.createImagesTemplate(source, url)).reverse().join('')}
-            </ul>
+            ${this.createSortableListTemplate()}
         </div>
         <button type="button" name="uploadImage" class="button-primary-outline"><span>Загрузить</span></button>
       </div>
@@ -213,7 +216,16 @@ export default class ProductForm {
             <img src="icon-trash.svg" data-delete-handle="" alt="delete">
           </button>
         </li>
+
   `);
+   }
+
+   createSortableListTemplate() {
+     return (`
+            <ul class="sortable-list">
+                ${this.productsData.images.map(({source, url}) => this.createImagesTemplate(source, url)).join('')}
+            </ul>
+    `);
    }
 
    save() {
