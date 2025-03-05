@@ -9,6 +9,8 @@ export default class SortableTable extends SortableTableV2 {
     sorted: { id = 'title', order = 'asc' } = {},
     url = '',
     isSortLocally,
+    from = null,
+    to = null
   } = {}) {
     super(headersConfig, {
       data,
@@ -24,6 +26,8 @@ export default class SortableTable extends SortableTableV2 {
     this.scrollStep = 10;
     this.url = url;
     this.isSortLocally = isSortLocally;
+    this.from = from;
+    this.to = to;
     this.render();
     this.createListeners();
   }
@@ -68,14 +72,23 @@ export default class SortableTable extends SortableTableV2 {
   }
 
   async loadData() {
-    const url = this.createUrl(this.url, {
+    const createUrlParams = {
       baseUrl: BACKEND_URL,
       _embed: 'subcategory.category',
       _sort: this.sortField,
       _order: this.sortOrder,
       _start: this.initialValue,
       _end: this.endValue,
-    });
+    };
+
+    const url = (this.from && this.to)
+      ? this.createUrl(this.url,
+        {
+          from: this.from,
+          to: this.to,
+          ...createUrlParams,
+        })
+      : this.createUrl(this.url, createUrlParams);
 
     return this.fetchData(url);
   }
@@ -104,11 +117,21 @@ export default class SortableTable extends SortableTableV2 {
   async sortOnServer (sortField, sortOrder) {
     this.sortField = sortField;
     this.sortOrder = sortOrder;
+    super.setDataOrder(this.sortField, this.sortOrder);
+    await this.changeData();
+  }
+
+  async updateWithRange(from, to) {
+    this.from = from;
+    this.to = to;
+    await this.changeData();
+  }
+
+  async changeData() {
     this.initialValue = this.defaultInitialValue;
     this.endValue = this.defaultEndValue;
     this.data = await this.loadData();
     this.endValue += this.scrollStep;
-    super.setDataOrder(sortField, sortOrder);
     super.update(this.data);
   }
 }
