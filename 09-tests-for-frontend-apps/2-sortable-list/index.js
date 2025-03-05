@@ -70,11 +70,11 @@ export default class SortableList {
     this.createPlaceholder();
 
     this.draggingElement.classList.add('sortable-list__item_dragging');
-    this.draggingElement.style.width = '100%';
+    this.draggingElement.style.width = `${this.element.offsetWidth}px`;
     this.draggingElement.style.pointerEvents = 'none';
 
     this.draggingElement.after(this.placeholder);
-    this.moveAt(e.pageY);
+    this.moveAt(e.clientY);
 
     document.addEventListener('pointermove', this.handleDocumentPointermove);
     document.addEventListener('pointerover', this.handleDocumentPointerover);
@@ -83,7 +83,7 @@ export default class SortableList {
   }
 
   handleDocumentPointermove = (e) => {
-    this.moveAt(e.pageY);
+    this.moveAt(e.clientY);
   };
 
   handleDocumentPointerover = (e) => {
@@ -119,8 +119,8 @@ export default class SortableList {
     document.removeEventListener('pointerup', this.handleDocumentPointerup);
   };
 
-  moveAt(pageY) {
-    this.draggingElement.style.top = `${pageY - this.draggingElement.offsetHeight / 2}px`;
+  moveAt(y) {
+    this.draggingElement.style.top = `${y - this.draggingElement.offsetHeight / 2}px`;
   }
 
   remove() {
