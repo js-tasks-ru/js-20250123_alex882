@@ -134,9 +134,9 @@ export class CategoriesPage extends BasePage {
   }
 
   destroy() {
+    this.destroyListeners();
     const content = document.getElementById('content');
     content.innerHTML = '';
     super.destroy();
-    this.destroyListeners();
   }
 }
