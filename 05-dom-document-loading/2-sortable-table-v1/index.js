@@ -102,7 +102,7 @@ export default class SortableTable {
   sort(field, direction) {
     const columnConfig = this.headerConfig.find(config => config.id === field);
 
-    if (!columnConfig.sortable) {
+    if (!columnConfig?.sortable) {
       return;
     }
 
@@ -113,6 +113,9 @@ export default class SortableTable {
       this.setDataOrder(field, direction);
     } else if (columnConfig.sortType === 'number') {
       this.data.sort((a, b) => k * a[field] - k * b[field]);
+      this.setDataOrder(field, direction);
+    } else if (columnConfig.sortType === 'date') {
+      this.data.sort((a, b) => k * (new Date(a[field]) - new Date(b[field])));
       this.setDataOrder(field, direction);
     }
 

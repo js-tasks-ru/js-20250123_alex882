@@ -6,28 +6,35 @@ const BACKEND_URL = 'https://course-js.javascript.ru';
 export default class SortableTable extends SortableTableV2 {
   constructor(headersConfig, {
     data = [],
-    sorted: { id = 'title', order = 'asc' } = {},
     url = '',
     isSortLocally,
-    from = null,
-    to = null
+    sorted = {},
   } = {}) {
     super(headersConfig, {
       data,
-      sorted: { id, order }
+      sorted: {
+        id: sorted.id || 'title',
+        order: sorted.order || 'asc'
+      }
     });
+
     this.data = data;
-    this.sortField = id;
-    this.sortOrder = order;
+    this.url = url;
+    this.isSortLocally = isSortLocally;
+
+    const { id, order, ...rest } = sorted;
+    this.sorted = {
+      ...rest,
+      _sort: id || 'title',
+      _order: order || 'asc'
+    };
+
     this.defaultInitialValue = 0;
     this.defaultEndValue = 30;
     this.initialValue = this.defaultInitialValue;
     this.endValue = this.defaultEndValue;
     this.scrollStep = 10;
-    this.url = url;
-    this.isSortLocally = isSortLocally;
-    this.from = from;
-    this.to = to;
+
     this.render();
     this.createListeners();
   }
@@ -63,7 +70,6 @@ export default class SortableTable extends SortableTableV2 {
         this.data = newData;
         super.update(this.data);
         this.endValue += this.scrollStep;
-
       }
     } else {
       loadingIndicator.style.display = 'none';
@@ -74,23 +80,12 @@ export default class SortableTable extends SortableTableV2 {
   async loadData() {
     const createUrlParams = {
       baseUrl: BACKEND_URL,
-      _embed: 'subcategory.category',
-      _sort: this.sortField,
-      _order: this.sortOrder,
+      ...this.sorted,
       _start: this.initialValue,
       _end: this.endValue,
     };
 
-    const url = (this.from && this.to)
-      ? this.createUrl(this.url,
-        {
-          from: this.from,
-          to: this.to,
-          ...createUrlParams,
-        })
-      : this.createUrl(this.url, createUrlParams);
-
-    return this.fetchData(url);
+    return this.fetchData(this.createUrl(this.url, createUrlParams));
   }
 
   createUrl(url, { baseUrl, ...params }) {
@@ -115,15 +110,22 @@ export default class SortableTable extends SortableTableV2 {
   }
 
   async sortOnServer (sortField, sortOrder) {
-    this.sortField = sortField;
-    this.sortOrder = sortOrder;
-    super.setDataOrder(this.sortField, this.sortOrder);
+    this.sorted = {
+      ...this.sorted,
+      _sort: sortField,
+      _order: sortOrder,
+    };
+
+    super.setDataOrder(this.sorted['_sort'], this.sorted['_order']);
     await this.changeData();
   }
 
-  async updateWithRange(from, to) {
-    this.from = from;
-    this.to = to;
+  async updateWithFilters(filters) {
+    this.sorted = {
+      ...this.sorted,
+      ...filters
+    };
+    this.removeEmptyStrings(this.sorted);
     await this.changeData();
   }
 
@@ -133,5 +135,13 @@ export default class SortableTable extends SortableTableV2 {
     this.data = await this.loadData();
     this.endValue += this.scrollStep;
     super.update(this.data);
+  }
+
+  removeEmptyStrings(obj) {
+    for (const key in obj) {
+      if (Object.hasOwn(obj, key) && obj[key] === "") {
+        delete obj[key];
+      }
+    }
   }
 }
