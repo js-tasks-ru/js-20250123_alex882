@@ -20,11 +20,11 @@ export default class Page {
     this.element = this.createElement(this.createDashboardPageTemplate());
     const { from, to } = this.getRange();
 
-    this.createRangePickerElement(from, to);
-    this.createOrdersChartElement(from, to);
-    this.createSalesChartElement(from, to);
-    this.createCustomersChartElement(from, to);
-    this.createSortableTableElement(from, to);
+    this.createRangePickerComponent(from, to);
+    this.createOrdersChartComponent(from, to);
+    this.createSalesChartComponent(from, to);
+    this.createCustomersChartComponent(from, to);
+    this.createSortableTableComponent(from, to);
 
     this.selectSubElements();
     this.createListeners();
@@ -74,7 +74,7 @@ export default class Page {
     this.sortableTable.updateWithRange(from.toISOString(), to.toISOString());
   }
 
-  createRangePickerElement(from, to) {
+  createRangePickerComponent(from, to) {
     const formattedDateFrom = new Date(`${from.getFullYear()}, ${from.getMonth()}, ${from.getDate()}`);
     const formattedDateTo = new Date(`${to.getFullYear()}, ${to.getMonth()}, ${to.getDate()}`);
 
@@ -87,7 +87,7 @@ export default class Page {
     rangePickerContainer.append(this.rangePicker.element);
   }
 
-  createOrdersChartElement(from, to) {
+  createOrdersChartComponent(from, to) {
     this.ordersChart = new ColumnChart({
       url: 'api/dashboard/orders',
       range: {
@@ -102,7 +102,7 @@ export default class Page {
     ordersChartContainer.append(this.ordersChart.element);
   }
 
-  createSalesChartElement(from, to) {
+  createSalesChartComponent(from, to) {
     this.salesChart = new ColumnChart({
       url: 'api/dashboard/sales',
       range: {
@@ -117,7 +117,7 @@ export default class Page {
     salesChartContainer.append(this.salesChart.element);
   }
 
-  createCustomersChartElement(from, to) {
+  createCustomersChartComponent(from, to) {
     this.customersChart = new ColumnChart({
       url: 'api/dashboard/customers',
       range: {
@@ -131,7 +131,7 @@ export default class Page {
     customersChartContainer.append(this.customersChart.element);
   }
 
-  createSortableTableElement(from, to) {
+  createSortableTableComponent(from, to) {
     this.sortableTable = new SortableTable(header, {
       url: 'api/dashboard/bestsellers',
       isSortLocally: true,

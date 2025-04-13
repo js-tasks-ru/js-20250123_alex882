@@ -9,10 +9,6 @@ const BACKEND_URL = 'https://course-js.javascript.ru';
 export default class ProductForm extends ProductFormV1 {
   element;
 
-  constructor (productId) {
-    super(productId);
-  }
-
   async render () {
     const productForm = await super.render();
     const imageListContainer = this.element.querySelector('[data-element="imageListContainer"]');
